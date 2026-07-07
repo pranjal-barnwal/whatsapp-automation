@@ -11,10 +11,9 @@ import re
 from pathlib import Path
 from urllib.parse import quote
 
-from . import config
-from .data_loader import Client
+from .. import config
 
-# Matches placeholders like {NAME} or {DUE_DATE}. Only word characters and
+# Matches placeholders like {NAME} or {DUE DATE}. Only word characters and
 # spaces are allowed inside so that stray braces in the message are ignored.
 _PLACEHOLDER = re.compile(r"\{([\w ]+)\}")
 
@@ -50,11 +49,6 @@ def render_message(template: str, fields: dict[str, str]) -> str:
 def find_unresolved_placeholders(message: str) -> list[str]:
     """Return any placeholders that were not substituted."""
     return [m.group(1).strip() for m in _PLACEHOLDER.finditer(message)]
-
-
-def build_message_for(client: Client, template: str) -> str:
-    """Convenience: render the template for a single client."""
-    return render_message(template, client.fields)
 
 
 def build_web_send_url(phone: str, message: str) -> str:

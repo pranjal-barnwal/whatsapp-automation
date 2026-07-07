@@ -9,7 +9,7 @@ import csv
 from datetime import datetime
 from pathlib import Path
 
-from . import config
+from .. import config
 
 # Status values written to the report.
 STATUS_SENT = "sent"

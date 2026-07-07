@@ -1,14 +1,14 @@
 """Central configuration and default settings.
 
 All values here are sensible defaults. Anything a user is likely to change
-per-run can be overridden from the command line (see ``main.py``).
+per-run can be overridden from the command line (see ``cli``).
 """
 from __future__ import annotations
 
 from pathlib import Path
 
 # --- Paths -------------------------------------------------------------------
-# Project root = the folder that contains this ``src`` package.
+# Project root = the folder that contains the ``src`` package.
 ROOT_DIR: Path = Path(__file__).resolve().parent.parent
 
 DATA_FILE: Path = ROOT_DIR / "data" / "Clients.xlsx"
@@ -42,7 +42,3 @@ MAX_DELAY_SECONDS: float = 20.0
 # How long (seconds) to wait for WhatsApp Web UI elements before giving up.
 PAGE_LOAD_TIMEOUT: int = 60
 ELEMENT_TIMEOUT: int = 40
-
-# The placeholder token style used in the template, e.g. ``{NAME}``.
-PLACEHOLDER_OPEN: str = "{"
-PLACEHOLDER_CLOSE: str = "}"

@@ -23,8 +23,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-from . import config
-from .message_builder import build_web_send_url
+from .. import config
+from ..messaging.templating import build_web_send_url
+from . import selectors
 
 
 class SendError(Exception):
@@ -33,23 +34,6 @@ class SendError(Exception):
 
 class InvalidNumberError(SendError):
     """Raised when WhatsApp reports the phone number is not on WhatsApp."""
-
-
-# XPath fragments for the WhatsApp Web UI. These occasionally change when
-# WhatsApp updates its web client; keep them in one place for easy updates.
-_XPATH_SEND_BUTTON = "//button[@aria-label='Send' or @data-testid='send']"
-_XPATH_MESSAGE_BOX = (
-    "//div[@contenteditable='true'][@data-tab='10' or @aria-label]"
-    "[@role='textbox']"
-)
-_XPATH_INVALID_DIALOG = (
-    "//*[contains(text(), 'Phone number shared via url is invalid') or "
-    "contains(text(), 'phone number shared via url is invalid') or "
-    "contains(text(), \"isn't on WhatsApp\") or "
-    "contains(text(), 'is not on WhatsApp')]"
-)
-_XPATH_QR_CANVAS = "//canvas[@aria-label='Scan me!' or @role='img']"
-_XPATH_CHAT_READY = "//footer//div[@contenteditable='true']"
 
 
 class WhatsAppSender:
@@ -98,7 +82,7 @@ class WhatsAppSender:
             if self._is_logged_in():
                 print("WhatsApp Web is ready.")
                 return
-            if not announced_qr and self._element_present(_XPATH_QR_CANVAS):
+            if not announced_qr and self._element_present(selectors.QR_CANVAS):
                 print("Scan the QR code in the browser to log in...")
                 announced_qr = True
             time.sleep(2)
@@ -107,12 +91,7 @@ class WhatsAppSender:
 
     def _is_logged_in(self) -> bool:
         """Heuristic: the chat/search pane is present once logged in."""
-        assert self.driver is not None
-        selectors = [
-            "//div[@id='side']",
-            "//div[@contenteditable='true'][@data-tab='3']",
-        ]
-        return any(self._element_present(sel) for sel in selectors)
+        return any(self._element_present(sel) for sel in selectors.LOGGED_IN)
 
     def _element_present(self, xpath: str) -> bool:
         assert self.driver is not None
@@ -154,14 +133,14 @@ class WhatsAppSender:
         # The chat either loads (message box appears) or the invalid dialog shows.
         try:
             wait.until(
-                lambda d: self._element_present(_XPATH_SEND_BUTTON)
-                or self._element_present(_XPATH_CHAT_READY)
-                or self._element_present(_XPATH_INVALID_DIALOG)
+                lambda d: self._element_present(selectors.SEND_BUTTON)
+                or self._element_present(selectors.CHAT_READY)
+                or self._element_present(selectors.INVALID_DIALOG)
             )
         except TimeoutException as exc:
             raise SendError("Chat did not load in time.") from exc
 
-        if self._element_present(_XPATH_INVALID_DIALOG):
+        if self._element_present(selectors.INVALID_DIALOG):
             self._dismiss_invalid_dialog()
             raise InvalidNumberError("Number is not on WhatsApp or is invalid.")
 
@@ -175,7 +154,7 @@ class WhatsAppSender:
         assert self.driver is not None
         try:
             button = wait.until(
-                EC.element_to_be_clickable((By.XPATH, _XPATH_SEND_BUTTON))
+                EC.element_to_be_clickable((By.XPATH, selectors.SEND_BUTTON))
             )
             button.click()
             return True
@@ -187,29 +166,26 @@ class WhatsAppSender:
         from selenium.webdriver.common.keys import Keys
 
         try:
-            box = self.driver.find_element(By.XPATH, _XPATH_MESSAGE_BOX)
+            box = self.driver.find_element(By.XPATH, selectors.MESSAGE_BOX)
             box.send_keys(Keys.ENTER)
         except (NoSuchElementException, WebDriverException) as exc:
             raise SendError("Could not locate the message box to send.") from exc
 
     def _wait_until_sent(self) -> None:
         """Wait briefly for the pending clock icon to clear (message left device)."""
-        assert self.driver is not None
-        pending_xpath = "//span[@data-icon='msg-time']"
         deadline = time.time() + 20
         # First give the message a moment to appear in the thread.
         time.sleep(1.5)
         while time.time() < deadline:
-            if not self._element_present(pending_xpath):
+            if not self._element_present(selectors.PENDING_CLOCK):
                 return
             time.sleep(1)
         # Not fatal: message may still deliver; caller logs as sent optimistically.
 
     def _dismiss_invalid_dialog(self) -> None:
         assert self.driver is not None
-        ok_xpath = "//div[@role='button']//div[text()='OK'] | //button[text()='OK']"
         try:
-            self.driver.find_element(By.XPATH, ok_xpath).click()
+            self.driver.find_element(By.XPATH, selectors.INVALID_OK_BUTTON).click()
         except (NoSuchElementException, WebDriverException):
             pass
 

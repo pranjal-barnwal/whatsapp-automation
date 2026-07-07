@@ -23,6 +23,31 @@ prefixed with the `+91` country code.
 
 ---
 
+## Project layout
+
+```
+main.py                          # launcher: python main.py [options]
+message.txt                      # editable message template ({NAME} etc.)
+requirements.txt
+data/Clients.xlsx                # your client list (git-ignored)
+src/                             # the app package
+├── config.py                    # all tweakable settings
+├── cli.py                       # command-line interface + orchestration
+├── clients/                     # reading the recipient list
+│   ├── models.py                #   Client / SkippedRow data classes
+│   ├── phone.py                 #   phone cleaning + +91 validation
+│   └── loader.py                #   read Excel, stop at first empty row
+├── messaging/
+│   └── templating.py            # render message + build WhatsApp links
+├── sending/                     # WhatsApp Web automation
+│   ├── selectors.py             #   WhatsApp Web XPaths (edit here if UI changes)
+│   └── sender.py                #   Selenium sender + throttle
+└── reporting/
+    └── report.py                # per-run CSV report + resume lookup
+```
+
+---
+
 ## Prerequisites
 
 - **Python 3.10+** — <https://www.python.org/downloads/>
@@ -129,4 +154,4 @@ Every run writes a CSV to `logs/report-YYYYmmdd-HHMMSS.csv` with the status
   who expect to hear from you, keep volumes reasonable, and keep the delay
   between messages. The default throttle exists for this reason.
 - If sends start failing after a WhatsApp Web update, the UI selectors in
-  `src/sender.py` may need a small update.
+  `src/sending/selectors.py` may need a small update.
