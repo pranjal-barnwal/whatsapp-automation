@@ -1,0 +1,23 @@
+# Client PII — never commit real client data
+data/*.xlsx
+!data/Clients.sample.xlsx
+
+# Run reports (contain phone numbers)
+logs/
+
+# Persistent WhatsApp Web / Chrome session
+.wa_profile/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
