@@ -1,6 +1,6 @@
 # Client PII (never commit real client data)
 data/*.xlsx
-!data/Clients.sample.xlsx
+!data/Clients.xlsx
 
 # Run reports (contain phone numbers)
 logs/
