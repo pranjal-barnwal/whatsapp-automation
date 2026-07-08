@@ -2,8 +2,8 @@
 
 The template lives in an editable text file (``message.txt``) and contains
 placeholders such as ``{NAME}``. Placeholders are replaced by simple string
-substitution (not ``str.format``) so that literal braces or mixed
-Hindi/English text never break rendering.
+substitution (not ``str.format``) so that literal braces or non-ASCII text in
+any language (Hindi, Tamil, Bengali, etc.) never break rendering.
 """
 from __future__ import annotations
 

@@ -1,10 +1,46 @@
-# WhatsApp Automation
+# WhatsApp Automation: Send Personalized Bulk Messages from Excel (Python + Selenium)
 
-Send personalized WhatsApp messages to your clients (e.g. ITR / filing
-reminders) from an Excel sheet. Messages support mixed **Hindi + English** and
-are automated through **WhatsApp Web** using Selenium.
+**Send personalized WhatsApp messages to many clients at once, straight from an Excel spreadsheet.**
+This lightweight, open-source Python tool reads names and phone numbers from Excel,
+fills in a customizable message template (`{NAME}`, `{DUE DATE}`, and more), and sends each
+message through **WhatsApp Web** using Selenium. It supports **virtually any language**
+(English, Hindi, Marathi, Tamil, Telugu, Bengali, Gujarati, Kannada, Punjabi, Urdu, and more,
+even several languages in one message), and it adds the **+91 (India)** country code to your
+numbers automatically.
 
-Works on both **Windows** and **macOS**.
+It is a great fit for Chartered Accountants (CAs), small businesses, and freelancers who need
+to send **ITR / tax-filing reminders, due-date alerts, or payment follow-ups** on WhatsApp
+without paying for a bulk-SMS or WhatsApp Business API service. It runs on both **Windows**
+and **macOS**.
+
+## Table of contents
+
+- [Features](#features)
+- [How it works](#how-it-works)
+- [Project layout](#project-layout)
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Prepare your data](#prepare-your-data)
+- [Usage](#usage)
+- [Reports](#reports)
+- [Use cases](#use-cases)
+- [FAQ](#faq)
+- [Important notes](#important-notes)
+
+---
+
+## Features
+
+- **Excel-driven:** reads recipients from a simple `.xlsx` sheet (name and phone number).
+- **Personalized message templates:** replace `{NAME}` and any other column placeholder per contact.
+- **Any-language support:** full Unicode, so you can write in English, Hindi, Marathi, Tamil, Telugu, Bengali, Gujarati, Kannada, Punjabi, Urdu, and virtually any other language, even several in one message.
+- **Automatic +91 (India) formatting:** cleans up messy numbers and adds the country code.
+- **WhatsApp Web automation:** sends through Selenium, and you scan the QR code only once.
+- **Human-like throttling:** randomized delays between messages to reduce spam flags.
+- **Safe dry-run and test mode:** preview every message before anything is sent.
+- **Resume support:** automatically skips contacts you have already messaged.
+- **Per-client CSV reports:** see which messages were sent, invalid, or failed.
+- **Cross-platform:** works on Windows and macOS.
 
 ---
 
@@ -12,9 +48,9 @@ Works on both **Windows** and **macOS**.
 
 1. Reads clients from `data/Clients.xlsx` (row 1 = header and is skipped;
    column 1 = **name**, column 2 = **phone number** without country code).
-2. Renders `message.txt`, replacing `{NAME}` (and any other `{COLUMN}`
+2. Renders [`message.txt`](message.txt), replacing `{NAME}` (and any other `{COLUMN}`
    placeholder) with each client's data.
-3. Opens WhatsApp Web in Chrome, pre-fills each chat, and sends — with a
+3. Opens WhatsApp Web in Chrome, pre-fills each chat, and sends, pausing a
    randomized delay between messages.
 4. Writes a per-client report to `logs/`.
 
@@ -50,7 +86,7 @@ src/                             # the app package
 
 ## Prerequisites
 
-- **Python 3.10+** — <https://www.python.org/downloads/>
+- **Python 3.10+** (download from <https://www.python.org/downloads/>).
 - **Google Chrome** installed (the matching driver is downloaded automatically).
 - A phone with WhatsApp, to scan the QR code once.
 
@@ -82,7 +118,7 @@ pip install -r requirements.txt
   - Any other columns are ignored.
   - Reading **stops at the first empty row**, so the first blank line marks the
     end of your client list.
-- Edit `message.txt` to change the message. Use `{NAME}` where the client's
+- Edit [message.txt](message.txt) to change the message. Use `{NAME}` where the client's
   name should appear. You can also reference any other column by its header in
   braces, e.g. `{DUE DATE}`. Example:
 
@@ -102,13 +138,13 @@ pip install -r requirements.txt
 python main.py --dry-run
 ```
 
-**Live test to yourself** — put your own number as the first row, then:
+**Live test to yourself.** Put your own number as the first row, then:
 
 ```bash
 python main.py --limit 1
 ```
 
-The first time, a Chrome window opens WhatsApp Web — **scan the QR code** with
+The first time, a Chrome window opens WhatsApp Web, so **scan the QR code** with
 your phone. Your login is saved in `.wa_profile/`, so you won't need to scan
 again on later runs.
 
@@ -133,7 +169,7 @@ python main.py --resume
 | `--resume` | Skip numbers already marked `sent` in previous reports. |
 | `--data PATH` | Use a different Excel file. |
 | `--template PATH` | Use a different message template. |
-| `--min-delay` / `--max-delay` | Seconds to wait between messages (default 8–20). |
+| `--min-delay` / `--max-delay` | Seconds to wait between messages (default 8 to 20). |
 | `--yes` | Skip the confirmation prompt. |
 
 ---
@@ -142,6 +178,42 @@ python main.py --resume
 
 Every run writes a CSV to `logs/report-YYYYmmdd-HHMMSS.csv` with the status
 (`sent`, `invalid`, `failed`) for each client. These files are git-ignored.
+
+---
+
+## Use cases
+
+- **Chartered Accountants (CAs) and tax consultants:** ITR filing reminders, GST due-date
+  alerts, and document-request messages.
+- **Small businesses and freelancers:** invoice and payment follow-ups, order updates.
+- **Clinics, tutors, and service providers:** appointment reminders and confirmations.
+- **Any team** that keeps a client list in Excel and wants quick, personalized WhatsApp outreach.
+
+---
+
+## FAQ
+
+**Does this WhatsApp automation work on both Windows and macOS?**
+Yes. It is written in Python and drives WhatsApp Web with Selenium, so it runs on both.
+
+**Which languages can I send WhatsApp messages in?**
+Virtually any language. Messages are fully Unicode, so English, Hindi, Marathi, Tamil, Telugu,
+Bengali, Gujarati, Kannada, Punjabi, Urdu, and even multiple languages in a single message,
+all send correctly.
+
+**Do I need the WhatsApp Business API or a paid bulk-SMS service?**
+No. It works through your existing WhatsApp account on WhatsApp Web, so there is no paid API or SMS gateway to set up.
+
+**How many WhatsApp messages can I send at once?**
+It is built for small, personalized batches (tens to a few hundred). Keep volumes reasonable and
+keep the delay between messages to avoid being flagged.
+
+**Is automated or bulk WhatsApp messaging allowed?**
+Automated/bulk messaging can violate WhatsApp's Terms of Service. Only message clients who expect
+to hear from you. See [Important notes](#important-notes).
+
+**Do I have to scan the QR code every time?**
+No. Your login is saved locally in `.wa_profile/`, so you scan once and stay signed in on later runs.
 
 ---
 

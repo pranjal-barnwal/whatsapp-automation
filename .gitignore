@@ -1,4 +1,4 @@
-# Client PII — never commit real client data
+# Client PII (never commit real client data)
 data/*.xlsx
 !data/Clients.sample.xlsx
 
