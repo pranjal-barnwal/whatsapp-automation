@@ -21,3 +21,5 @@ env/
 Thumbs.db
 .idea/
 .vscode/
+
+task.md

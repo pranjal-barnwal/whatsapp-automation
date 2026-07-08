@@ -1,4 +1,8 @@
-# WhatsApp Automation: Send Personalized Bulk Messages from Excel (Python + Selenium)
+# WhatsApp Automation: Send personalized bulk-messages from Excel (Python + Selenium)
+
+<p align="center">
+  <img src="assets/Whatsapp%20Automation%20by%20Pranjal%20Kumar.png" alt="WhatsApp Automation: send personalized bulk WhatsApp messages from Excel using Python and Selenium developed by Pranjal Kumar" width="100%">
+</p>
 
 **Send personalized WhatsApp messages to many clients at once, straight from an Excel spreadsheet.**
 This lightweight, open-source Python tool reads names and phone numbers from Excel,
